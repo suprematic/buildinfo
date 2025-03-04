@@ -1,0 +1,15 @@
+[package]
+name = "buildinfo-macro"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+serde = { version = "1.0.130", features = ["derive"] }
+serde_json = "1.0.139"
+quote = "1.0"
+proc-macro2 = "1.0"
+slurp = "1.0.1"
+buildinfo = { path = "../buildinfo" }
