@@ -57,8 +57,8 @@ fn codebuild_build_info() -> Result<BuildInfo> {
 }
 
 fn local_build_environment() -> Result<BuildInfo> {
-    static TIMESTAMP: std::sync::LazyLock<chrono::DateTime<chrono::Local>> =
-        std::sync::LazyLock::new(|| chrono::Local::now());
+    static TIMESTAMP: std::sync::LazyLock<chrono::DateTime<chrono::Utc>> =
+        std::sync::LazyLock::new(|| chrono::Utc::now());
 
     Ok(BuildInfo {
         environment: BuildEnvironment::Local,
