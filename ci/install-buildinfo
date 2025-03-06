@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -eu
+
+readonly cmd=~/.local/bin/buildinfo
+
+mkdir -p "$(dirname "$cmd")"
+curl -Lo "$cmd" 'https://github.com/suprematic/buildinfo/releases/download/v0.1.1-alpha/buildinfo'
+chmod +x "$cmd"
