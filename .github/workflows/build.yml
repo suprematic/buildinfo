@@ -13,5 +13,11 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Install buildinfo
+      run: ./ci/install-buildinfo
+
+    - name: Produce build info
+      run: buildinfo ./buildinfo-cli
+
     - name: Build
       run: cargo build --verbose
