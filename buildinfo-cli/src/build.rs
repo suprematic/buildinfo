@@ -29,12 +29,19 @@ fn build_environment() -> BuildEnvironment {
     }
 }
 
+fn timestamp() -> String {
+    let timestamp: std::sync::LazyLock<chrono::DateTime<chrono::Utc>> =
+        std::sync::LazyLock::new(|| chrono::Utc::now());
+
+    timestamp.to_rfc3339()
+}
+
 fn github_build_info() -> Result<BuildInfo> {
     Ok(BuildInfo {
         environment: BuildEnvironment::GitHub,
         trigger: var("GITHUB_ACTOR")?,
         number: var("GITHUB_RUN_NUMBER")?.parse()?,
-        timestamp: var("GITHUB_RUN_AT")?,
+        timestamp: timestamp(),
     })
 }
 
@@ -57,14 +64,11 @@ fn codebuild_build_info() -> Result<BuildInfo> {
 }
 
 fn local_build_environment() -> Result<BuildInfo> {
-    static TIMESTAMP: std::sync::LazyLock<chrono::DateTime<chrono::Utc>> =
-        std::sync::LazyLock::new(|| chrono::Utc::now());
-
     Ok(BuildInfo {
         environment: BuildEnvironment::Local,
         trigger: whoami::username(),
         number: 1,
-        timestamp: TIMESTAMP.to_rfc3339(),
+        timestamp: timestamp(),
     })
 }
 
