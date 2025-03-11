@@ -9,6 +9,13 @@ pub struct GitInfo {
     pub reference: String,
     pub repository: String,
     pub dirty: bool,
+    pub as_string: String,
+}
+
+fn as_string(commit: &str, dirty: bool, reference: &str) -> String{
+    let short_commit = &commit[..7];
+    let dirty = if dirty { "#dirty" } else { "" };
+    format!("commit: {}{}, ref: {}", short_commit, dirty, reference)
 }
 
 fn local_build_info() -> Result<GitInfo> {
@@ -25,38 +32,59 @@ fn local_build_info() -> Result<GitInfo> {
         .count()
         > 0;
 
+    let as_string = as_string(&commit, dirty, &reference);
+
     Ok(GitInfo {
         commit,
         reference,
         repository,
         dirty,
+        as_string,
     })
 }
 
 fn github_build_info() -> Result<GitInfo> {
+    let commit = var("GITHUB_SHA")?;
+    let reference = var("GITHUB_REF_NAME")?;
+    let dirty = false;
+    let as_string = as_string(&commit, dirty, &reference);
+
     Ok(GitInfo {
-        commit: var("GITHUB_SHA")?,
-        reference: var("GITHUB_REF_NAME")?,
+        commit,
+        reference,
         repository: var("GITHUB_REPOSITORY")?,
-        dirty: false,
+        dirty,
+        as_string,
     })
 }
 
 fn bitbucket_build_info() -> Result<GitInfo> {
+    let commit = var("BITBUCKET_COMMIT")?;
+    let reference = var("BITBUCKET_BRANCH").or_else(|_| var("BITBUCKET_TAG"))?;
+    let dirty = false;
+    let as_string = as_string(&commit, dirty, &reference);
+
     Ok(GitInfo {
-        commit: var("BITBUCKET_COMMIT")?,
-        reference: var("BITBUCKET_BRANCH").or_else(|_| var("BITBUCKET_TAG"))?,
+        commit,
+        reference,
         repository: var("BITBUCKET_REPO_FULL_NAME")?,
-        dirty: false,
+        dirty,
+        as_string,
     })
 }
 
 fn codebuild_build_info() -> Result<GitInfo> {
+    let commit = var("CODEBUILD_RESOLVED_SOURCE_VERSION")?;
+    let reference = var("CODEBUILD_SOURCE_VERSION").unwrap_or_else(|_| "undefined".to_string());
+    let dirty = false;
+    let as_string = as_string(&commit, dirty, &reference);
+
     Ok(GitInfo {
-        commit: var("CODEBUILD_RESOLVED_SOURCE_VERSION")?,
-        reference: var("CODEBUILD_SOURCE_VERSION").unwrap_or_else(|_| "undefined".to_string()),
+        commit,
+        reference,
         repository: var("CODEBUILD_SOURCE_REPO_URL")?,
-        dirty: false,
+        dirty,
+        as_string,
     })
 }
 

@@ -17,6 +17,8 @@ pub mod v1 {
 
         #[serde(skip_serializing_if = "std::ops::Not::not")]
         pub dirty: bool,
+
+        pub as_string: String,
     }
 
     #[derive(Debug, Serialize, Deserialize)]

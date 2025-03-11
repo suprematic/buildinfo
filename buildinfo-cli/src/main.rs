@@ -37,7 +37,9 @@ mod v1 {
                 reference: git_info.reference.clone(),
                 commit: git_info.commit.clone(),
                 dirty: git_info.dirty,
+                as_string: git_info.as_string.clone(),
             },
+
             build: BuilderInfo {
                 timestamp: build_info.timestamp.clone(),
                 number: build_info.number,
