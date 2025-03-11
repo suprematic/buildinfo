@@ -51,6 +51,7 @@ mod v1 {
                     BuildEnvironment::CodeBuild => "codebuild",
                 }
                 .to_string(),
+                as_string: build_info.as_string.clone(),
             },
 
             properties: HashMap::new(),

@@ -27,6 +27,7 @@ pub mod v1 {
         pub timestamp: String,
         pub number: u32,
         pub trigger: String,
+        pub as_string: String,
     }
 
     #[derive(Debug, Serialize, Deserialize)]

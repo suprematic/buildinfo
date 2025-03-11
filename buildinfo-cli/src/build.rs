@@ -15,6 +15,7 @@ pub struct BuildInfo {
     pub trigger: String,
     pub number: u32,
     pub timestamp: String,
+    pub as_string: String,
 }
 
 fn build_environment() -> BuildEnvironment {
@@ -36,39 +37,67 @@ fn timestamp() -> String {
     timestamp.to_rfc3339()
 }
 
+fn as_string(number: u32, timestamp: &str, trigger: &str) -> String {
+    format!("build #{} at {} by {}", number, timestamp, trigger)
+}
+
 fn github_build_info() -> Result<BuildInfo> {
+    let trigger = var("GITHUB_ACTOR")?;
+    let number = var("GITHUB_RUN_NUMBER")?.parse()?;
+    let timestamp = timestamp();
+    let as_string = as_string(number, &timestamp, &trigger);
+
     Ok(BuildInfo {
         environment: BuildEnvironment::GitHub,
-        trigger: var("GITHUB_ACTOR")?,
-        number: var("GITHUB_RUN_NUMBER")?.parse()?,
-        timestamp: timestamp(),
+        trigger,
+        number,
+        timestamp,
+        as_string,
     })
 }
 
 fn bitbucket_build_info() -> Result<BuildInfo> {
+    let trigger = var("BITBUCKET_BUILD_CREATOR")?;
+    let number = var("BITBUCKET_BUILD_NUMBER")?.parse()?;
+    let timestamp = var("BITBUCKET_BUILD_CREATED_ON")?;
+    let as_string = as_string(number, &timestamp, &trigger);
+
     Ok(BuildInfo {
         environment: BuildEnvironment::BitBucket,
-        trigger: var("BITBUCKET_BUILD_CREATOR")?,
-        number: var("BITBUCKET_BUILD_NUMBER")?.parse()?,
-        timestamp: var("BITBUCKET_BUILD_CREATED_ON")?,
+        trigger,
+        number,
+        timestamp,
+        as_string,
     })
 }
 
 fn codebuild_build_info() -> Result<BuildInfo> {
+    let trigger = var("CODEBUILD_INITIATOR")?;
+    let number = var("CODEBUILD_BUILD_NUMBER")?.parse()?;
+    let timestamp = var("CODEBUILD_START_TIME")?;
+    let as_string = as_string(number, &timestamp, &trigger);
+
     Ok(BuildInfo {
         environment: BuildEnvironment::CodeBuild,
-        trigger: var("CODEBUILD_INITIATOR")?,
-        number: var("CODEBUILD_BUILD_NUMBER")?.parse()?,
-        timestamp: var("CODEBUILD_START_TIME")?,
+        trigger,
+        number,
+        timestamp,
+        as_string,
     })
 }
 
 fn local_build_environment() -> Result<BuildInfo> {
+    let trigger = whoami::username();
+    let number = 1;
+    let timestamp = timestamp();
+    let as_string = as_string(number, &timestamp, &trigger);
+
     Ok(BuildInfo {
         environment: BuildEnvironment::Local,
-        trigger: whoami::username(),
-        number: 1,
-        timestamp: timestamp(),
+        trigger,
+        number,
+        timestamp,
+        as_string,
     })
 }
 
