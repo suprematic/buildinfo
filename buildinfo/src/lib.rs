@@ -38,6 +38,8 @@ pub mod v1 {
 
         #[serde(skip_serializing_if = "HashMap::is_empty")]
         pub properties: HashMap<String, String>,
+
+        pub as_string: String,
     }
 }
 
