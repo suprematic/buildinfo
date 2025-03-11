@@ -1,0 +1,33 @@
+name: Build
+
+on: push
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install buildinfo
+      run: ./ci/install-buildinfo
+
+    - name: Produce build info
+      working-directory: ./buildinfo-cli
+      run: |
+        buildinfo
+        cat ./src/buildinfo.json
+
+    - name: Build
+      run: cargo build --release --verbose
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: buildinfo
+        path: ./target/release/buildinfo
+        if-no-files-found: error

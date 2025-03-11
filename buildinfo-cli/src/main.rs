@@ -25,19 +25,21 @@ mod v1 {
         git_info: &super::git::GitInfo,
         project_info: &super::project::ProjectInfo,
     ) -> BuildInfo {
-        BuildInfo {
-            project: ProjectInfo {
+        let project = ProjectInfo {
                 name: project_info.name.clone(),
                 version: project_info.version.clone(),
-            },
+                as_string: project_info.as_string.clone(),
+            };
 
-            git: RepoInfo {
+        let git = RepoInfo {
                 repository: git_info.repository.clone(),
                 reference: git_info.reference.clone(),
                 commit: git_info.commit.clone(),
                 dirty: git_info.dirty,
-            },
-            build: BuilderInfo {
+                as_string: git_info.as_string.clone(),
+            };
+
+        let build = BuilderInfo {
                 timestamp: build_info.timestamp.clone(),
                 number: build_info.number,
                 trigger: build_info.trigger.clone(),
@@ -48,8 +50,16 @@ mod v1 {
                     BuildEnvironment::CodeBuild => "codebuild",
                 }
                 .to_string(),
-            },
+                as_string: build_info.as_string.clone(),
+            };
 
+        let as_string = format!("{} ({}, {})", project.as_string, git.as_string, build.as_string);
+
+        BuildInfo {
+            project,
+            git,
+            build,
+            as_string,
             properties: HashMap::new(),
         }
     }
