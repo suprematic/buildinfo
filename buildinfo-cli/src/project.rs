@@ -17,6 +17,7 @@ pub struct ProjectInfo {
     pub name: String,
     pub version: String,
     pub target_path: PathBuf,
+    pub as_string: String,
 }
 
 fn project_type() -> ProjectType {
@@ -35,6 +36,10 @@ fn project_type() -> ProjectType {
     }
 }
 
+fn as_string(name: &str, version: &str) -> String {
+    format!("{} v{}", name, version)
+}
+
 fn rust_project_info() -> Result<ProjectInfo> {
     let cargo_toml = slurp::read_all_to_string("Cargo.toml")?;
     let cargo_toml = toml::from_str::<toml::Table>(&cargo_toml)?;
@@ -42,6 +47,7 @@ fn rust_project_info() -> Result<ProjectInfo> {
     let package = &cargo_toml["package"];
     let name = package["name"].as_str().unwrap_or("unknown").to_string();
     let version = package["version"].as_str().unwrap_or("unknown").to_string();
+    let as_string = as_string(&name, &version);
 
     let target_path = current_dir()?.join("src/buildinfo.json");
 
@@ -50,6 +56,7 @@ fn rust_project_info() -> Result<ProjectInfo> {
         name,
         version,
         target_path,
+        as_string,
     })
 }
 
@@ -67,13 +74,18 @@ fn java_project_info() -> Result<ProjectInfo> {
     let pom_xml = slurp::read_all_to_string("pom.xml")?;
     let pom_xml = fast_xml::de::from_str::<Root>(&pom_xml)?;
 
+    let name = format!("{}/{}", pom_xml.group_id, pom_xml.artifact_id);
+    let version = pom_xml.version;
+    let as_string = as_string(&name, &version);
+
     let target_path = current_dir()?.join("src/main/resources/META-INF/buildinfo.json");
 
     Ok(ProjectInfo {
         project_type: ProjectType::Java,
-        name: format!("{}/{}", pom_xml.group_id, pom_xml.artifact_id),
-        version: pom_xml.version,
+        name,
+        version,
         target_path,
+        as_string
     })
 }
 
@@ -85,10 +97,13 @@ fn javascript_project_info() -> Result<ProjectInfo> {
         .as_str()
         .unwrap_or("unknown")
         .to_string();
+
     let version = project_json["version"]
         .as_str()
         .unwrap_or("unknown")
         .to_string();
+
+    let as_string = as_string(&name, &version);
 
     let target_path = current_dir()?.join("src/buildinfo.json");
 
@@ -97,6 +112,7 @@ fn javascript_project_info() -> Result<ProjectInfo> {
         name,
         version,
         target_path,
+        as_string
     })
 }
 
@@ -105,11 +121,18 @@ pub fn project_info() -> Result<ProjectInfo> {
         ProjectType::Rust => rust_project_info(),
         ProjectType::Java => java_project_info(),
         ProjectType::JavaScript => javascript_project_info(),
-        ProjectType::Other => Ok(ProjectInfo {
-            project_type: ProjectType::Other,
-            name: "unknown".to_string(),
-            version: "unknown".to_string(),
-            target_path: current_dir()?.join("buildinfo.json"),
-        }),
+        ProjectType::Other => {
+            let name = "unknown".to_string();
+            let version = "unknown".to_string();
+            let as_string = as_string(&name, &version);
+
+            Ok(ProjectInfo {
+                    project_type: ProjectType::Other,
+                    name,
+                    version,
+                    as_string,
+                    target_path: current_dir()?.join("buildinfo.json"),
+                })
+        },
     }
 }

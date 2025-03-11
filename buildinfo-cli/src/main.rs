@@ -29,6 +29,7 @@ mod v1 {
             project: ProjectInfo {
                 name: project_info.name.clone(),
                 version: project_info.version.clone(),
+                as_string: project_info.as_string.clone(),
             },
 
             git: RepoInfo {

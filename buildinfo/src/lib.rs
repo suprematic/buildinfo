@@ -6,6 +6,7 @@ pub mod v1 {
     pub struct ProjectInfo {
         pub name: String,
         pub version: String,
+        pub as_string: String,
     }
 
     #[derive(Debug, Serialize, Deserialize)]
